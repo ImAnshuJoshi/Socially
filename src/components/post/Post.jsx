@@ -1,11 +1,11 @@
 import "./post.css";
 import { MoreVert } from "@material-ui/icons";
-import { Users } from "../../dummyData";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import dotenv from 'dotenv';
 import axios from "axios";
 import {format} from 'timeago.js'
 import {Link} from 'react-router-dom';
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Post({ post }) {
 
@@ -16,17 +16,27 @@ export default function Post({ post }) {
   const [isLiked,setIsLiked] = useState(false)
   const [user,setUser]=useState({});
   const PF= process.env.REACT_APP_PUBLIC_FOLDER
+  const {user:currentUser} = useContext(AuthContext)
+
+  useEffect(()=>{
+    setIsLiked(post.likes.includes(currentUser._id))
+  },[currentUser._id])
 
   useEffect(async ()=>{
     const FetchUser=( async ()=>{
       // console.log('feed rendered');
-      const res=await  axios.get(`http://localhost:8800/api/users?userId=${post.userId}`)
+      const res=await axios.get(`http://localhost:8800/api/users?userId=${post.userId}`)
       setUser(res.data);
     })
     FetchUser();
-  },[])
+  },[post.userId])
 
   const likeHandler =()=>{
+    try{
+      axios.put("http://localhost:8800/api/posts/"+post._id+"/like",{userId:currentUser._id})
+    }catch(err){
+
+    }
     setLike(isLiked ? like-1 : like+1)
     setIsLiked(!isLiked)
   }
@@ -38,7 +48,7 @@ export default function Post({ post }) {
             <Link to={`profile/${user.username}`}>
             <img
               className="postProfileImg"
-              src={user.profilePicture || PF+"person/noavatar.png"}
+              src={user.profilePicture? PF+ user.profilePicture : PF+"person/noavatar.png"}
               alt=""
               />
               </Link>
