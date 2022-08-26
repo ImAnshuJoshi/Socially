@@ -4,6 +4,7 @@ import { useContext } from "react";
 import {AuthContext} from '../../context/AuthContext'
 import { useState } from "react";
 import axios from 'axios';
+import {Cancel} from "@material-ui/icons";
 
 export default function Share() {
   const {user} = useContext(AuthContext);
@@ -27,7 +28,7 @@ export default function Share() {
       console.log(newPost);
       try {
         await axios.post("http://localhost:8800/api/upload", data);
-        // window.location.reload();
+        window.location.reload();
       } catch (err) {}
     }
     else{
@@ -52,6 +53,13 @@ export default function Share() {
           />
         </div>
         <hr className="shareHr"/>
+        {file && (
+          <div className="shareImgContainer">
+            <img className="shareImg" src={URL.createObjectURL(file)} alt="" />
+            <Cancel className ="shareCancelImg" onClick={()=>{setFile(null)}}></Cancel>
+          </div>
+          
+        )}
         <form className="shareBottom" onSubmit={submitHandler}>
             <div className="shareOptions">
                 <label htmlFor="file" className="shareOption">
